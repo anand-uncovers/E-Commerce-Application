@@ -48,7 +48,6 @@ public class AuthServiceImpl implements AuthService {
         String otp = req.getOtp();
 
         Authentication authentication = authenticate(username,otp);
-        System.out.println("LASTrsyrsyhs--------------------");
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtProvider.generateToken(authentication);
@@ -66,24 +65,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private Authentication authenticate(String username, String otp) {
-        System.out.println("a.authenticate 1");
         UserDetails userDetails= customUserService.loadUserByUsername(username);
 
-        System.out.println("b.authenticate 2");
         if(userDetails==null){
             throw new BadCredentialsException("Invalid Username ");
         }
 
-        System.out.println("c.authenticate 3");
         VerificationCode verificationCode = verificationCodeRepository.findByEmail(username);
-        System.out.println("d.authenticate 4");
 
         if(verificationCode==null || !verificationCode.getOtp().equals(otp)){
-            System.out.println("e.authenticate 5");
             throw new BadCredentialsException(" Wrong OTP ");
         }
 
-        System.out.println("f.before return authenticate");
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,
@@ -95,6 +88,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void sentLoginOtp(String email) throws Exception {
         String SIGNIN_PREFIX = "signin_";
+//        String SELLER_PREFIX= "seller_";
 
         if(email.startsWith(SIGNIN_PREFIX)){
             email=email.substring(SIGNIN_PREFIX.length());

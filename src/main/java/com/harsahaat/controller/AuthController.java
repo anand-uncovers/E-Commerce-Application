@@ -43,7 +43,6 @@ public class AuthController {
         authService.sentLoginOtp(req.getEmail());
 
         ApiResponse res = new ApiResponse();
-
         res.setMessage("OTP Sent Successfully");
 
         return ResponseEntity.ok(res);
@@ -53,9 +52,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> loginHandler(
             @RequestBody LoginRequest req) throws Exception {
 
-        System.out.println("2.Authcontroller 1");
         AuthResponse authResponse = authService.signin(req);
-        System.out.println("3.Authcontroller 2");
         return ResponseEntity.ok(authResponse);
     }
 }

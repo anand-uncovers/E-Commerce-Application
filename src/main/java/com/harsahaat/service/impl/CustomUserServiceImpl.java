@@ -36,7 +36,6 @@ public class CustomUserServiceImpl implements UserDetailsService {
        }else{
            User user = userRepository.findByEmail(username);
            if(user!=null){
-               System.out.println("loading user by name......");
                return buildUserDetails(user.getEmail(),user.getPassword(),user.getRole());
            }
        }
@@ -45,12 +44,11 @@ public class CustomUserServiceImpl implements UserDetailsService {
 
     private UserDetails buildUserDetails(String email, String password, USER_ROLE role) {
 
-        System.out.println("1.Build user details");
         if(role==null) role = USER_ROLE.ROLE_CUSTOMER;
 
         List<GrantedAuthority> authorityList = new ArrayList<>();
         authorityList.add(new SimpleGrantedAuthority(role.toString()));
-        System.out.println("8. buildUserdetails last");
+
         return new org.springframework.security.core.userdetails.User(email,
                 password,authorityList
         );
