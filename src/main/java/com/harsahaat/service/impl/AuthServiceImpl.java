@@ -3,9 +3,11 @@ package com.harsahaat.service.impl;
 import com.harsahaat.config.JwtProvider;
 import com.harsahaat.domain.USER_ROLE;
 import com.harsahaat.model.Cart;
+import com.harsahaat.model.Seller;
 import com.harsahaat.model.User;
 import com.harsahaat.model.VerificationCode;
 import com.harsahaat.repository.CartRepository;
+import com.harsahaat.repository.SellerRepository;
 import com.harsahaat.repository.UserRepository;
 import com.harsahaat.repository.VerificationCodeRepository;
 import com.harsahaat.request.LoginRequest;
@@ -40,10 +42,11 @@ public class AuthServiceImpl implements AuthService {
     private final VerificationCodeRepository verificationCodeRepository;
     private final EmailService emailService;
     private final CustomUserServiceImpl customUserService;
+    private final SellerRepository sellerRepository;
 
 
     @Override
-    public AuthResponse signin(LoginRequest req) {
+    public AuthResponse signin(LoginRequest req) throws Exception {
         String username = req.getEmail();
         String otp = req.getOtp();
 
@@ -64,17 +67,21 @@ public class AuthServiceImpl implements AuthService {
         return authResponse;
     }
 
-    private Authentication authenticate(String username, String otp) {
+    private Authentication authenticate(String username, String otp) throws Exception {
         UserDetails userDetails= customUserService.loadUserByUsername(username);
 
-        if(userDetails==null){
+        String SELLER_PREFIX="seller_";
+        if(username.startsWith(SELLER_PREFIX)) {
+           username=username.substring(SELLER_PREFIX.length());
+        }
+            if(userDetails==null){
             throw new BadCredentialsException("Invalid Username ");
         }
 
         VerificationCode verificationCode = verificationCodeRepository.findByEmail(username);
 
         if(verificationCode==null || !verificationCode.getOtp().equals(otp)){
-            throw new BadCredentialsException(" Wrong OTP ");
+            throw new Exception(" Wrong OTP ");
         }
 
         return new UsernamePasswordAuthenticationToken(
@@ -86,17 +93,26 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public void sentLoginOtp(String email) throws Exception {
+    public void sentLoginOtp(String email, USER_ROLE role) throws Exception {
         String SIGNIN_PREFIX = "signin_";
-//        String SELLER_PREFIX= "seller_";
 
         if(email.startsWith(SIGNIN_PREFIX)){
             email=email.substring(SIGNIN_PREFIX.length());
 
-            User user = userRepository.findByEmail(email);
-            if(user==null){
-                throw new Exception("User doesn't exist with provided mail id");
+            if(role.equals(USER_ROLE.ROLE_SELLER)){
+                Seller seller = sellerRepository.findByEmail(email);
+                if(seller==null){
+                    throw new Exception("Seller not found");
+                }
             }
+            else {
+                User user = userRepository.findByEmail(email);
+                if(user==null){
+                    throw new Exception("User doesn't exist with provided mail id");
+                }
+            }
+
+
         }
 
         VerificationCode isExist = verificationCodeRepository.findByEmail(email);

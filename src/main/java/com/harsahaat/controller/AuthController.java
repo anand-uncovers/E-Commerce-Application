@@ -4,6 +4,7 @@ import com.harsahaat.domain.USER_ROLE;
 import com.harsahaat.model.User;
 import com.harsahaat.model.VerificationCode;
 import com.harsahaat.repository.UserRepository;
+import com.harsahaat.request.LoginOtpRequest;
 import com.harsahaat.request.LoginRequest;
 import com.harsahaat.response.ApiResponse;
 import com.harsahaat.response.AuthResponse;
@@ -38,9 +39,9 @@ public class AuthController {
     }
     @PostMapping("/sent/login-signup-otp")
     public ResponseEntity<ApiResponse> sentOtpHandler(
-            @RequestBody VerificationCode req) throws Exception {
+            @RequestBody LoginOtpRequest req) throws Exception {
 
-        authService.sentLoginOtp(req.getEmail());
+        authService.sentLoginOtp(req.getEmail(),req.getRole());
 
         ApiResponse res = new ApiResponse();
         res.setMessage("OTP Sent Successfully");
