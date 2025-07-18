@@ -3,6 +3,7 @@ package com.harsahaat.service.impl;
 import com.harsahaat.config.JwtProvider;
 import com.harsahaat.domain.AccountStatus;
 import com.harsahaat.domain.USER_ROLE;
+import com.harsahaat.exceptions.SellerException;
 import com.harsahaat.model.Address;
 import com.harsahaat.model.Seller;
 import com.harsahaat.repository.AddressRepository;
@@ -54,9 +55,9 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public Seller getSellerById(Long id) throws Exception {
+    public Seller getSellerById(Long id) throws SellerException {
         return sellerRepository.findById(id)
-                .orElseThrow(()->new Exception("Seller not found with id - "+ id));
+                .orElseThrow(()->new SellerException("Seller not found with id - "+ id));
     }
 
     @Override

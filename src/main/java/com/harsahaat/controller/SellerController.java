@@ -2,6 +2,7 @@ package com.harsahaat.controller;
 
 import com.harsahaat.config.JwtProvider;
 import com.harsahaat.domain.AccountStatus;
+import com.harsahaat.exceptions.SellerException;
 import com.harsahaat.model.Seller;
 import com.harsahaat.model.SellerReport;
 import com.harsahaat.model.VerificationCode;
@@ -81,7 +82,7 @@ public class SellerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Seller> getSellerById(@PathVariable Long id) throws Exception{
+    public ResponseEntity<Seller> getSellerById(@PathVariable Long id) throws SellerException {
         Seller seller = sellerService.getSellerById(id);
         return new ResponseEntity<>(seller,HttpStatus.OK);
     }
