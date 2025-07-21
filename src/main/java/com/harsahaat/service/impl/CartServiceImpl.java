@@ -11,6 +11,8 @@ import com.harsahaat.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
@@ -35,6 +37,7 @@ public class CartServiceImpl implements CartService {
 
             int totalPrice = quanity* product.getSellingPrice();
             cartItem.setSellingPrice(totalPrice);
+            cartItem.setMrpPrice(quanity*product.getMrpPrice());
 
             cart.getCartItems().add(cartItem);
             cartItem.setCart(cart);
@@ -48,6 +51,19 @@ public class CartServiceImpl implements CartService {
     public Cart findUserCart(User user) {
         Cart cart = cartRepository.findByUserId(user.getId());
 
+
+        // Crucial change: If no cart exists for the user, create a new one
+        if (cart == null) {
+            cart = new Cart();
+            cart.setUser(user);
+            cart.setCartItems(new HashSet<>()); // Initialize an empty set
+            // Initialize other fields if necessary, like total prices to 0
+            cart.setTotalMrpPrice(0);
+            cart.setTotalSellingPrice(0);
+            cart.setTotalItem(0);
+            cart.setDiscount(0);
+            //cartRepository.save(cart); // Persist the new cart
+        }
         int totalPrice=0;
         int totalDiscountedPrice=0;
         int totalItem =0;
@@ -64,12 +80,16 @@ public class CartServiceImpl implements CartService {
         cart.setDiscount(calculateDiscountPercentage(totalPrice,totalDiscountedPrice));
         cart.setTotalItem(totalItem);
 
+       // cartRepository.save(cart);
+
+
         return cart;
     }
     private int calculateDiscountPercentage(int mrpPrice, int sellingPrice) {
         if(mrpPrice<=0){
 
-             throw new IllegalArgumentException("Actual price must be greater than 0");
+            //return 0;
+            throw new IllegalArgumentException("Actual price must be greater than 0");
         }
         double discount = mrpPrice- sellingPrice;
         double discountPercentage = (discount/mrpPrice)*100;
